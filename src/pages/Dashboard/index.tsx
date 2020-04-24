@@ -9,6 +9,7 @@ import api from '../../services/api';
 import Header from '../../components/Header';
 
 import formatValue from '../../utils/formatValue';
+import formatDate from '../../utils/formatDate';
 
 import { Container, CardContainer, Card, TableContainer } from './styles';
 
@@ -37,6 +38,20 @@ const Dashboard: React.FC = () => {
     async function loadTransactions(): Promise<void> {
       const { data } = await api.get('/transactions');
 
+      const formattedData = data.transactions.map(
+        (transaction: Transaction) => {
+          const formattedTransaction = transaction;
+
+          const formattedValue = formatValue(transaction.value);
+          const formattedDate = formatDate(transaction.created_at);
+
+          formattedTransaction.formattedValue = formattedValue;
+          formattedTransaction.formattedDate = formattedDate;
+
+          return formattedTransaction;
+        },
+      );
+
       const incomeValue = formatValue(data.balance.income);
       const outcomeValue = formatValue(data.balance.outcome);
       const totalValue = formatValue(data.balance.total);
@@ -47,7 +62,7 @@ const Dashboard: React.FC = () => {
         total: totalValue,
       };
 
-      setTransactions(data.transactions);
+      setTransactions(formattedData);
       setBalance(balanceFormat);
     }
 
@@ -94,18 +109,18 @@ const Dashboard: React.FC = () => {
             </thead>
 
             <tbody>
-              <tr>
-                <td className="title">Computer</td>
-                <td className="income">R$ 5.000,00</td>
-                <td>Sell</td>
-                <td>20/04/2020</td>
-              </tr>
-              <tr>
-                <td className="title">Website Hosting</td>
-                <td className="outcome">- R$ 1.000,00</td>
-                <td>Hosting</td>
-                <td>19/04/2020</td>
-              </tr>
+              {transactions.map(transaction => (
+                <tr key={transaction.id}>
+                  <td className="title">{transaction.title}</td>
+                  {transaction.type === 'income' ? (
+                    <td className="income">{transaction.formattedValue}</td>
+                  ) : (
+                    <td className="outcome"> - {transaction.formattedValue}</td>
+                  )}
+                  <td>{transaction.category.title}</td>
+                  <td>{transaction.formattedDate}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </TableContainer>
