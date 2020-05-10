@@ -20,7 +20,6 @@ interface FileProps {
 
 const Import: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<FileProps[]>([]);
-  const [hasLoad, setHasLoad] = useState(false);
   const history = useHistory();
 
   async function handleUpload(): Promise<void> {
@@ -33,7 +32,7 @@ const Import: React.FC = () => {
     try {
       await api.post('/transactions/import', data);
 
-      console.log('Csv importado com sucesso !!');
+      console.log('Csv importado com sucesso!!');
 
       history.push('/');
     } catch (err) {
